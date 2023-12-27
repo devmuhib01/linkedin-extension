@@ -11,8 +11,12 @@ const localStorage = {
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.message === "linkedinUserInfo") {
     const userInfo = request.data;
-
     localStorage.setItem("linkedinUserInfo", userInfo);
+  }
+
+  if (request.message === "searchedPeopleData") {
+    const peoplesData = request.data;
+    localStorage.setItem("searchedPeopleData", peoplesData);
   }
 
   sendResponse();
@@ -26,6 +30,17 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   ) {
     chrome.tabs.sendMessage(tabId, {
       message: "extensionData",
+      data: { url: tab.url },
+    });
+  }
+
+  if (
+    tab?.url &&
+    tab?.url.includes("https://www.linkedin.com/search/results/people") &&
+    changeInfo?.status === "complete"
+  ) {
+    chrome.tabs.sendMessage(tabId, {
+      message: "searchedPeople",
       data: { url: tab.url },
     });
   }

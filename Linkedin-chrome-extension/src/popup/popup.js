@@ -1,5 +1,10 @@
 document.addEventListener("DOMContentLoaded", async () => {
   const user = await chrome.storage.local.get("linkedinUserInfo");
+  const searchedPeoplesData = await chrome.storage.local.get(
+    "searchedPeopleData"
+  );
+
+  console.log("user", user);
 
   chrome.tabs.query(
     {
@@ -26,18 +31,19 @@ document.addEventListener("DOMContentLoaded", async () => {
           container.innerHTML = `<div>
                               <h1 class="title">My Linkedin Extension</h1>
                               <div>
-                              <h2>isLoggedIn: ${userInfo.loggedIn}</h2>
                                 <img src=${userInfo.profileImage} />
-                                <h2>${userInfo.userName}</h2>
-                               
+                                <h2>${userInfo.fullName}</h2>
+                                <h3>Occupation: ${userInfo.occupation}</h3>
                               </div>
                             </div>`;
+
+          console.log(searchedPeoplesData.peoplesData, "peoples");
         } else {
           console.log("User is not logged in on LinkedIn");
 
           chrome.storage.local.remove("linkedinUserInfo");
           container.innerHTML =
-            '<h1 class="title">you are not Logged in please signup</h1>';
+            '<h1 class="title">Please log in Linkedin.</h1>';
         }
       });
       // } else {
