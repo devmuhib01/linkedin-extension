@@ -44,4 +44,15 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
       data: { url: tab.url },
     });
   }
+
+  if (
+    tab?.url &&
+    tab?.url.includes("https://www.linkedin.com/in") &&
+    changeInfo?.status === "complete"
+  ) {
+    chrome.tabs.sendMessage(tabId, {
+      message: "getPersonInfo",
+      data: { url: tab.url },
+    });
+  }
 });

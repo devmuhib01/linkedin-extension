@@ -1,8 +1,6 @@
 document.addEventListener("DOMContentLoaded", async () => {
   const user = await chrome.storage.local.get("linkedinUserInfo");
-  const searchedPeoplesData = await chrome.storage.local.get(
-    "searchedPeopleData"
-  );
+  const searchedData = await chrome.storage.local.get("searchedPeopleData");
 
   console.log("user", user);
 
@@ -30,18 +28,46 @@ document.addEventListener("DOMContentLoaded", async () => {
 
           container.innerHTML = `<div>
                               <h1 class="title">My Linkedin Extension</h1>
-                              <div>
+
+                              <h3>Current Linkedin account connected</h3>
+                              <div class='user__info'>
                                 <img src=${userInfo.profileImage} />
+                                <div>
                                 <h2>${userInfo.fullName}</h2>
                                 <h3>Occupation: ${userInfo.occupation}</h3>
+                                </div>
                               </div>
                             </div>`;
 
-          console.log(searchedPeoplesData.peoplesData, "peoples");
+          const searchedListContainer =
+            document.querySelector(".searched__list");
+
+          if (searchedData.searchedPeopleData.peoplesData.length) {
+            searchedListContainer.insertAdjacentHTML(
+              "beforeend",
+              "<h1>Search Result</h1>"
+            );
+            searchedData.searchedPeopleData.peoplesData.forEach(
+              (item) =>
+                (searchedListContainer.innerHTML += `<li>
+               <img src=${item.peopleImg} />
+                <div>
+                <h2>${item.peopleName}</h2>
+                <h3>${item.peoplePrimarySubtitle}</h3>
+                <h4>${item.peopleSecondarySubtitle}</h4>
+                <a href=${item.profileUrl}>Profile Link</a>
+                </div>
+               
+               </li>`)
+            );
+          }
+
+          console.log(searchedData.searchedPeopleData.peoplesData, "peoples");
         } else {
           console.log("User is not logged in on LinkedIn");
 
           chrome.storage.local.remove("linkedinUserInfo");
+          chrome.storage.local.remove("searchedPeopleData");
           container.innerHTML =
             '<h1 class="title">Please log in Linkedin.</h1>';
         }
