@@ -19,6 +19,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     localStorage.setItem("searchedPeopleData", peoplesData);
   }
 
+  if (request.message === "getPersonInfo") {
+    const person = request.data;
+
+    localStorage.setItem("person", person);
+  }
+
   sendResponse();
 });
 

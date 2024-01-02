@@ -1,8 +1,9 @@
 document.addEventListener("DOMContentLoaded", async () => {
   const user = await chrome.storage.local.get("linkedinUserInfo");
   const searchedData = await chrome.storage.local.get("searchedPeopleData");
+  const personData = await chrome.storage.local.get("person");
 
-  console.log("user", user);
+  console.log("person", personData);
 
   chrome.tabs.query(
     {
@@ -42,12 +43,12 @@ document.addEventListener("DOMContentLoaded", async () => {
           const searchedListContainer =
             document.querySelector(".searched__list");
 
-          if (searchedData.searchedPeopleData.peoplesData.length) {
+          if (searchedData.searchedPeopleData.peoples?.length) {
             searchedListContainer.insertAdjacentHTML(
               "beforeend",
               "<h1>Search Result</h1>"
             );
-            searchedData.searchedPeopleData.peoplesData.forEach(
+            searchedData.searchedPeopleData.peoples?.forEach(
               (item) =>
                 (searchedListContainer.innerHTML += `<li>
                <img src=${item.peopleImg} />
@@ -62,7 +63,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             );
           }
 
-          console.log(searchedData.searchedPeopleData.peoplesData, "peoples");
+          console.log(searchedData.searchedPeopleData.peoples, "peoples");
         } else {
           console.log("User is not logged in on LinkedIn");
 
