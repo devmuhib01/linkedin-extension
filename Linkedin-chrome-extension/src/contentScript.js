@@ -297,8 +297,6 @@
         }
       }
 
-      console.log("before waiting for skills");
-
       const skillElement = document.getElementById("skills");
       if (skillElement) {
         const nextDiv = skillElement.nextElementSibling;
@@ -357,8 +355,6 @@
       setTimeout(() => {
         clearInterval(intervalId);
       }, 20000);
-
-      console.log(person, "ffafhhf");
 
       sendMessageToBackground("getPersonInfo", { person });
 
