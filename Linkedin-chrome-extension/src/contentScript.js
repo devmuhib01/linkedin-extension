@@ -88,10 +88,12 @@
 
     const getIframe = document.querySelector(".profile-page-" + personUserName);
 
-    getIframe.onload = () => {
+    getIframe.onload = async () => {
       let person = {};
-      let iframeDocument =
-        iframe.contentDocument || iframe.contentWindow.document;
+      // let iframeDocument =
+      //   iframe.contentDocument || iframe.contentWindow.document;
+
+      let isSendData = false;
 
       const nameElement = document.querySelector(
         "div.ph5.pb5 > div.mt2.relative > div:nth-child(1) > div:nth-child(1) > span > a h1"
@@ -111,7 +113,7 @@
       }
 
       person["title"] =
-        iframeDocument
+        document
           .querySelector(
             "div.ph5.pb5 > div.mt2.relative > div:nth-child(1) > div.text-body-medium.break-words"
           )
@@ -149,9 +151,18 @@
             educationList.forEach((item) => {
               let education = {};
 
-              education["university_link"] = item.querySelector(
+              const universityLink = item.querySelector(
                 ".optional-action-target-wrapper"
               )?.href;
+
+              if (
+                universityLink &&
+                universityLink.includes("https://www.linkedin.com/company")
+              ) {
+                education["university_link"] = universityLink;
+              } else {
+                education["university_link"] = null;
+              }
 
               education["university_name"] = item.querySelector(
                 "div.pvs-entity--padded > div:nth-child(2) > div:nth-child(1) > a > div > div > div > div > span"
@@ -185,9 +196,18 @@
 
               experience["is_current"] = false;
 
-              experience["company_link"] = item.querySelector(
+              const companyLink = item.querySelector(
                 ".optional-action-target-wrapper"
               )?.href;
+
+              if (
+                companyLink &&
+                companyLink.includes("https://www.linkedin.com/company")
+              ) {
+                experience["company_link"] = companyLink;
+              } else {
+                experience["company_link"] = null;
+              }
 
               experience["designation"] =
                 item.querySelector(
@@ -277,7 +297,7 @@
         }
       }
 
-      localStorage.setItem("single_person_info", JSON.stringify(person));
+      console.log("before waiting for skills");
 
       const skillElement = document.getElementById("skills");
       if (skillElement) {
@@ -285,61 +305,62 @@
         if (nextDiv && nextDiv.tagName.toLowerCase() === "div") {
           const secondNextDiv = nextDiv.nextElementSibling;
           if (secondNextDiv && secondNextDiv.tagName.toLowerCase() === "div") {
-            const person_user = localStorage.getItem("person_user_name");
-
             const seeMoreBtn = secondNextDiv.querySelector(
               ".pvs-list__footer-wrapper > div > div > a"
             );
 
-            let skills = [];
-
             if (seeMoreBtn) {
-              if (person_user !== personUserName) {
-                seeMoreBtn.click();
-                localStorage.setItem("person_user_name", personUserName);
+              const iframe = document.createElement("iframe");
+              iframe.id = `${personUserName}_skills`;
+              iframe.src = `https://www.linkedin.com/in/${personUserName}/details/skills/`;
+              iframe.setAttribute("hidden", true);
+              iframe.setAttribute("frameborder", "0");
 
-                setTimeout(() => {
-                  const isMatch = window.location.href.includes(
-                    `https://www.linkedin.com/in/${personUserName}/details/skills/`
-                  );
+              document.body.appendChild(iframe);
 
-                  if (isMatch) {
-                    const skillsList = document.querySelectorAll(
-                      ".pvs-list > .artdeco-list__item"
-                    );
-
-                    skillsList?.forEach((item) => {
-                      const skill = item.querySelector(
-                        "div.pvs-entity--padded > div:nth-child(2) > div:nth-child(1) > a > div > div > div > div > span"
-                      )?.textContent;
-
-                      skills.push(skill);
-                    });
-
-                    localStorage.setItem(
-                      "person_skills",
-                      JSON.stringify(skills)
-                    );
-                  }
-                }, 1000);
-              }
+              // if (person_user !== personUserName) {}
             }
           }
         }
       }
 
-      let personDetails = JSON.parse(
-        localStorage.getItem("single_person_info")
-      );
+      let intervalId = setInterval(() => {
+        let skillsIframe = document.getElementById(`${personUserName}_skills`);
+        let iframeDocument =
+          skillsIframe?.contentDocument || skillsIframe.contentWindow.document;
 
-      const personSkills = JSON.parse(localStorage.getItem("person_skills"));
-      const uniqueSkills = [...new Set(personSkills)] || [];
+        let ulElement = iframeDocument.querySelector(
+          "div.scaffold-finite-scroll__content > ul.pvs-list"
+        );
 
-      personDetails.skills = uniqueSkills;
+        let skills = [];
 
-      sendMessageToBackground("getPersonInfo", { personDetails });
+        if (ulElement) {
+          clearInterval(intervalId);
 
-      localStorage.removeItem("person_skills");
+          ulElement.querySelectorAll(".artdeco-list__item")?.forEach((item) => {
+            const skill = item.querySelector(
+              "div.pvs-entity--padded > div:nth-child(2) > div:nth-child(1) > a > div > div > div > div > span"
+            )?.textContent;
+
+            skills.push(skill);
+            const uniqueSkills = [...new Set(skills)] || [];
+
+            person.skills = uniqueSkills;
+
+            sendMessageToBackground("getPersonInfo", { person });
+          });
+        }
+      }, 1000);
+
+      // Set a timeout to stop the interval after 20 seconds
+      setTimeout(() => {
+        clearInterval(intervalId);
+      }, 20000);
+
+      console.log(person, "ffafhhf");
+
+      sendMessageToBackground("getPersonInfo", { person });
 
       getIframe.remove();
     };

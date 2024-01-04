@@ -43,14 +43,13 @@ document.addEventListener("DOMContentLoaded", async () => {
           const searchedListContainer =
             document.querySelector(".searched__list");
 
-          if (searchedData.searchedPeopleData.peoples?.length) {
+          if (searchedData.searchedPeopleData?.peoples?.length) {
             searchedListContainer.insertAdjacentHTML(
               "beforeend",
               "<h1>Search Result</h1>"
             );
-            searchedData.searchedPeopleData.peoples?.forEach(
-              (item) =>
-                (searchedListContainer.innerHTML += `<li>
+            searchedData.searchedPeopleData?.peoples?.forEach((item) => {
+              searchedListContainer.innerHTML += `<li>
                <img src=${item.peopleImg} />
                 <div>
                 <h2>${item.peopleName}</h2>
@@ -59,11 +58,11 @@ document.addEventListener("DOMContentLoaded", async () => {
                 <a href=${item.profileUrl}>Profile Link</a>
                 </div>
                
-               </li>`)
-            );
+               </li>`;
+            });
           }
 
-          console.log(searchedData.searchedPeopleData.peoples, "peoples");
+          console.log(searchedData.searchedPeopleData?.peoples, "peoples");
         } else {
           console.log("User is not logged in on LinkedIn");
 
