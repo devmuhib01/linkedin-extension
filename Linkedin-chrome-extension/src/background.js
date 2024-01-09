@@ -9,8 +9,13 @@ const localStorage = {
 };
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.message === "showListUserDetails") {
+    chrome.tabs.sendMessage(activeTab.id, { message: "showUserDetails" });
+  }
+
   if (request.message === "linkedinUserInfo") {
     const userInfo = request.data;
+
     localStorage.setItem("linkedinUserInfo", userInfo);
   }
 

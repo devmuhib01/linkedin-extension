@@ -18,13 +18,21 @@
       if (linkedinData.includes("publicContactInfo")) {
         const data = JSON.parse(linkedinData);
 
+        const profile_link = document.querySelector(
+          ".feed-identity-module > .feed-identity-module__actor-meta > a"
+        )?.href;
+
+        const profile_user_name = profile_link.split("/")[4];
+
         data?.included.forEach((item) => {
           const { firstName, lastName, picture, occupation } = item;
 
           userData = {
-            fullName: `${firstName} ${lastName}`,
-            profileImage: `${picture.rootUrl}${picture.artifacts[1].fileIdentifyingUrlPathSegment}`,
+            name: `${firstName} ${lastName}`,
+            profile_picture: `${picture.rootUrl}${picture.artifacts[1].fileIdentifyingUrlPathSegment}`,
             occupation,
+            profile_link,
+            profile_user_name,
           };
         });
       }
@@ -92,8 +100,6 @@
       let person = {};
       // let iframeDocument =
       //   iframe.contentDocument || iframe.contentWindow.document;
-
-      let isSendData = false;
 
       const nameElement = document.querySelector(
         "div.ph5.pb5 > div.mt2.relative > div:nth-child(1) > div:nth-child(1) > span > a h1"
@@ -362,6 +368,10 @@
     };
   };
 
+  const getListUsersProfile = () => {
+    console.log("list user");
+  };
+
   chrome.runtime.onMessage.addListener((obj, sender, response) => {
     const { message, data } = obj;
 
@@ -375,6 +385,10 @@
 
     if (message === "getPersonInfo") {
       handleGetPersonInfo();
+    }
+
+    if (message === "showUserDetails") {
+      getListUsersProfile();
     }
   });
 })();
